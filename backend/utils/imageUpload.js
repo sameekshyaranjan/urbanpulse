@@ -1,17 +1,21 @@
 const multer = require('multer');
-const cloudinary = require('cloudinary').v2;
+const ImageKit = require('imagekit');
 const AppError = require('./AppError');
 
-// Configure Cloudinary (reads from env at runtime)
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
-});
+// Configure ImageKit (reads from env at runtime)
+let imagekit = null;
+if (process.env.IMAGEKIT_PUBLIC_KEY && process.env.IMAGEKIT_PRIVATE_KEY && process.env.IMAGEKIT_URL_ENDPOINT) {
+  imagekit = new ImageKit({
+    publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+    privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+    urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+  });
+}
 
 const ALLOWED_MIMES = ['image/jpeg', 'image/png'];
 const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
 
+// We now use Memory Storage so we get the file as a buffer
 const storage = multer.memoryStorage();
 
 const fileFilter = (req, file, cb) => {
@@ -31,23 +35,29 @@ const upload = multer({
 const uploadMiddleware = upload.single('image');
 
 /**
- * Upload a buffer to Cloudinary and return the secure URL.
+ * Upload a buffer to ImageKit and return the secure URL.
  * @param {Buffer} buffer
  * @param {string} mimetype
  * @returns {Promise<string>} secure URL
  */
-const uploadToCloudinary = (buffer, mimetype) => {
+const uploadToImageKit = (buffer, mimetype) => {
   return new Promise((resolve, reject) => {
-    const resourceType = 'image';
-    const uploadStream = cloudinary.uploader.upload_stream(
-      { resource_type: resourceType, folder: 'urbanpulse' },
-      (error, result) => {
-        if (error) return reject(new AppError('Image upload failed', 500));
-        resolve(result.secure_url);
+    if (!imagekit) {
+      return reject(new AppError('ImageKit credentials missing from environment', 500));
+    }
+    
+    imagekit.upload({
+      file: buffer.toString('base64'), // ImageKit accepts base64 strings
+      fileName: `issue-${Date.now()}`,
+      folder: '/urbanpulse',
+    }, (error, result) => {
+      if (error) {
+        console.error('ImageKit Upload Error:', error);
+        return reject(new AppError('Image upload failed', 500));
       }
-    );
-    uploadStream.end(buffer);
+      resolve(result.url); // Use the provided ImageKit URL
+    });
   });
 };
 
-module.exports = { uploadMiddleware, uploadToCloudinary };
+module.exports = { uploadMiddleware, uploadToImageKit };

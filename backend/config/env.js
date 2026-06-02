@@ -10,9 +10,9 @@ const required = [
 
 // ─── Optional — warnings only, server still starts ────────
 const optional = [
-  'CLOUDINARY_CLOUD_NAME',
-  'CLOUDINARY_API_KEY',
-  'CLOUDINARY_API_SECRET',
+  'IMAGEKIT_PUBLIC_KEY',
+  'IMAGEKIT_PRIVATE_KEY',
+  'IMAGEKIT_URL_ENDPOINT',
   'ALLOWED_ORIGINS',
 ];
 
@@ -27,7 +27,7 @@ if (missing.length > 0) {
 for (const key of optional) {
   if (!process.env[key]) {
     const hint =
-      key.startsWith('CLOUDINARY') ? 'Image file uploads will fail (JSON imageUrl still works).' :
+      key.startsWith('IMAGEKIT') ? 'Image file uploads will fail (JSON imageUrl still works).' :
       key === 'ALLOWED_ORIGINS'    ? 'Defaulting to http://localhost:3000.' :
       '';
     console.warn(`[env] Warning: ${key} is not set. ${hint}`);
@@ -43,8 +43,8 @@ module.exports = {
   // JWT_EXPIRES_IN and JWT_REFRESH_EXPIRES_IN are documented in .env.example
   // but the values are hardcoded in auth.service.js ('15m', '7d') for simplicity.
   // To make them configurable, update auth.service.js to read these values.
-  CLOUDINARY_CLOUD_NAME:  process.env.CLOUDINARY_CLOUD_NAME,
-  CLOUDINARY_API_KEY:     process.env.CLOUDINARY_API_KEY,
-  CLOUDINARY_API_SECRET:  process.env.CLOUDINARY_API_SECRET,
+  IMAGEKIT_PUBLIC_KEY:    process.env.IMAGEKIT_PUBLIC_KEY,
+  IMAGEKIT_PRIVATE_KEY:   process.env.IMAGEKIT_PRIVATE_KEY,
+  IMAGEKIT_URL_ENDPOINT:  process.env.IMAGEKIT_URL_ENDPOINT,
   ALLOWED_ORIGINS:        process.env.ALLOWED_ORIGINS || 'http://localhost:3000',
 };

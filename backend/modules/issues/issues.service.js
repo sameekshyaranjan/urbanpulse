@@ -1,6 +1,6 @@
 const Issue = require('./issues.model');
 const AppError = require('../../utils/AppError');
-const { uploadToCloudinary } = require('../../utils/imageUpload');
+const { uploadToImageKit } = require('../../utils/imageUpload');
 const leaderboardService = require('../leaderboard/leaderboard.service');
 
 // Valid lifecycle transitions
@@ -15,7 +15,7 @@ const createIssue = async (userId, { title, description, imageBuffer, imageMime,
   // If a file buffer was uploaded, push to Cloudinary; otherwise use the provided URL directly
   let imageUrl = providedUrl;
   if (imageBuffer) {
-    imageUrl = await uploadToCloudinary(imageBuffer, imageMime);
+    imageUrl = await uploadToImageKit(imageBuffer, imageMime);
   }
   if (!imageUrl) throw new AppError('Image is required', 400);
 
