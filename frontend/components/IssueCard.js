@@ -24,7 +24,7 @@ const LOCATION_RULES = [
 ];
 const LOCATION_DEFAULT = '📍 Local Area';
 
-function inferPriority(title = '', desc = '') {
+export function inferPriority(title = '', desc = '') {
   const text = `${title} ${desc}`.toLowerCase();
   for (const r of PRIORITY_RULES) {
     if (r.words.some((w) => text.includes(w))) return r;

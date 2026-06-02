@@ -16,9 +16,22 @@ export default function Register() {
     e.preventDefault();
     setLoading(true);
     try {
+      // 1. Register the user
       await api.post('/auth/register', form);
-      setToast({ message: 'Account created! Redirecting to login...', type: 'success' });
-      setTimeout(() => router.push('/login'), 1500);
+      
+      // 2. Automatically log them in with the same credentials
+      const res = await api.post('/auth/login', { email: form.email, password: form.password });
+      
+      const token = res.data?.data?.accessToken;
+      const refreshToken = res.data?.data?.refreshToken;
+
+      if (!token) throw new Error('No token received from server');
+      
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('token', token);
+        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
+      }
+      router.push('/dashboard');
     } catch (err) {
       setToast({ message: err.response?.data?.message || err.message || 'Registration failed', type: 'error' });
     } finally {
@@ -27,72 +40,95 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4 py-12">
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center px-4 py-12 relative overflow-hidden bg-grid-pattern">
+      {/* Background Neon Blobs */}
+      <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-purple-600/20 rounded-full blur-[120px] -z-10 mix-blend-screen pointer-events-none" />
+      <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-cyan-500/20 rounded-full blur-[120px] -z-10 mix-blend-screen pointer-events-none" />
+
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="modern-card w-full max-w-sm p-8">
-        <div className="text-center mb-7">
-          <div className="w-14 h-14 bg-blue-600 rounded-xl flex items-center justify-center text-white text-xl font-bold mx-auto mb-4">
+      <div className="glass-panel w-full max-w-sm p-8 relative z-10">
+        {/* Brand */}
+        <div className="text-center mb-8">
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center bg-gradient-to-br from-cyan-400 to-blue-600 text-white text-2xl font-bold mx-auto mb-5 shadow-[0_0_20px_rgba(34,211,238,0.4)]">
             UP
           </div>
-          <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Join UrbanPulse</h1>
-          <p className="text-sm text-blue-600 mt-1 font-semibold">Help keep the community safe</p>
-          <p className="text-xs text-slate-500 mt-0.5">Create your free account</p>
+          <h1 className="text-3xl font-black text-white tracking-tight">Create Account</h1>
+          <p className="text-sm text-cyan-400 mt-2 font-bold tracking-wide uppercase">UrbanPulse Platform</p>
+          <p className="text-sm text-slate-400 mt-1 font-medium">Join the community</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Full Name</label>
-            <input name="name" value={form.name} onChange={handleChange} required className="form-input" placeholder="Your name" />
+            <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-widest">Full Name</label>
+            <input 
+              name="name" 
+              type="text" 
+              value={form.name} 
+              onChange={handleChange} 
+              required 
+              className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-sm text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 placeholder:text-slate-600" 
+              placeholder="John Doe" 
+            />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Email</label>
-            <input name="email" type="email" value={form.email} onChange={handleChange} required className="form-input" placeholder="you@example.com" />
+            <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-widest">Email</label>
+            <input 
+              name="email" 
+              type="email" 
+              value={form.email} 
+              onChange={handleChange} 
+              required 
+              className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-sm text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 placeholder:text-slate-600" 
+              placeholder="you@example.com" 
+            />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide">Password</label>
-            <input name="password" type="password" value={form.password} onChange={handleChange} required minLength={8} className="form-input" placeholder="Min 8 characters" />
+            <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-widest">Password</label>
+            <input 
+              name="password" 
+              type="password" 
+              value={form.password} 
+              onChange={handleChange} 
+              required 
+              className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-sm text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20 placeholder:text-slate-600" 
+              placeholder="••••••••" 
+            />
           </div>
-
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-2 uppercase tracking-wide">I am a...</label>
-            <div className="grid grid-cols-2 gap-2">
-              {[
-                { r: 'citizen',   icon: '🏖️', title: 'Citizen', sub: 'Report issues' },
-                { r: 'volunteer', icon: '🙋', title: 'Volunteer',   sub: 'Resolve issues' },
-              ].map(({ r, icon, title, sub }) => (
-                <button
-                  key={r}
-                  type="button"
-                  onClick={() => setForm((f) => ({ ...f, role: r }))}
-                  className={`py-3 px-3 rounded-xl text-left transition-all duration-200 border-2 ${
-                    form.role === r
-                      ? 'border-blue-500 bg-blue-50'
-                      : 'border-slate-100 bg-white hover:border-slate-300'
-                  }`}
-                >
-                  <div className="text-lg mb-0.5">{icon}</div>
-                  <div className="text-xs font-bold text-slate-800">{title}</div>
-                  <div className="text-[10px] text-slate-500">{sub}</div>
-                </button>
-              ))}
-            </div>
+            <label className="block text-xs font-bold text-slate-300 mb-2 uppercase tracking-widest">Role</label>
+            <select 
+              name="role" 
+              value={form.role} 
+              onChange={handleChange} 
+              className="w-full rounded-lg border border-white/10 bg-slate-900/50 px-4 py-3 text-sm text-white transition-all focus:border-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/20"
+            >
+              <option value="citizen" className="bg-slate-900">Citizen (Report Issues)</option>
+              <option value="volunteer" className="bg-slate-900">Volunteer (Resolve Issues)</option>
+            </select>
           </div>
-
-          <button type="submit" disabled={loading} className="w-full btn-primary py-3 mt-1">
+          <button 
+            type="submit" 
+            disabled={loading} 
+            className="w-full py-3.5 mt-4 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-extrabold text-base transition-all shadow-[0_0_15px_rgba(34,211,238,0.3)] hover:shadow-[0_0_25px_rgba(34,211,238,0.5)] disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-slate-950/40 border-t-slate-950 rounded-full animate-spin" />
                 Creating account...
               </span>
-            ) : 'Create Account →'}
+            ) : 'Sign Up →'}
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-500 mt-6">
-          Already have an account?{' '}
-          <Link href="/login" className="text-blue-600 hover:text-blue-700 font-bold hover:underline">Sign in</Link>
-        </p>
+        <div className="mt-8 pt-6 border-t border-white/10">
+          <p className="text-center text-sm text-slate-400 font-medium">
+            Already have an account?{' '}
+            <Link href="/login" className="text-cyan-400 hover:text-cyan-300 font-bold hover:underline transition-colors">
+              Sign in
+            </Link>
+          </p>
+        </div>
       </div>
     </div>
   );

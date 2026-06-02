@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
-import IssueCard from '../components/IssueCard';
+import IssueCard, { inferPriority } from '../components/IssueCard';
 import Toast from '../components/Toast';
 import SidebarLayout from '../components/SidebarLayout';
 import useAuth from '../hooks/useAuth';
@@ -73,9 +73,15 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [deletingId, setDeletingId] = useState(null);
   const [toast, setToast] = useState(null);
+  
   const [filter, setFilter] = useState('All');
   const [search, setSearch] = useState('');
   const [touristMode, setTouristMode] = useState(false);
+  
+  // New State Features
+  const [priorityFilter, setPriorityFilter] = useState('All');
+  const [sortOrder, setSortOrder] = useState('Newest');
+  const [viewMode, setViewMode] = useState('Grid');
 
   useEffect(() => {
     if (ready && user) fetchNearby();
@@ -134,6 +140,8 @@ export default function Dashboard() {
 
   const visible = useMemo(() => {
     let list = issues;
+    
+    // Tourist Mode
     if (touristMode) {
       const tw = ['tourist','tourism','beach','heritage','monument','resort','visitor','hotel','attraction','unsafe','danger','hazard','dark','lighting'];
       list = list.filter((i) => {
@@ -141,10 +149,27 @@ export default function Dashboard() {
         return tw.some((w) => text.includes(w));
       });
     }
-    return list
-      .filter((i) => filter === 'All' || i.status === filter)
-      .filter((i) => !search || (i.title || '').toLowerCase().includes(search.toLowerCase()));
-  }, [issues, filter, search, touristMode]);
+    
+    // Status Filter
+    list = list.filter((i) => filter === 'All' || i.status === filter);
+    
+    // Search Filter
+    list = list.filter((i) => !search || (i.title || '').toLowerCase().includes(search.toLowerCase()));
+
+    // Priority Filter
+    if (priorityFilter !== 'All') {
+      list = list.filter((i) => inferPriority(i.title, i.description).label.includes(priorityFilter));
+    }
+
+    // Sort Order
+    list = [...list].sort((a, b) => {
+      const dateA = new Date(a.createdAt).getTime() || 0;
+      const dateB = new Date(b.createdAt).getTime() || 0;
+      return sortOrder === 'Newest' ? dateB - dateA : dateA - dateB;
+    });
+
+    return list;
+  }, [issues, filter, search, touristMode, priorityFilter, sortOrder]);
 
   if (!ready) return null;
 
@@ -209,9 +234,9 @@ export default function Dashboard() {
           ))}
         </div>
 
-        {/* Search + Filter */}
+        {/* Search, Filter & New Features */}
         <div className="modern-card p-5 mb-8">
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 mb-4">
             <input
               type="text"
               placeholder="🔍 Search issues..."
@@ -235,13 +260,60 @@ export default function Dashboard() {
               ))}
             </div>
           </div>
+          
+          <div className="flex flex-col lg:flex-row items-center justify-between gap-4 pt-4 border-t border-slate-100">
+            {/* Priority & Sort */}
+            <div className="flex gap-4 flex-wrap w-full lg:w-auto">
+              <div className="flex items-center gap-2 flex-1 sm:flex-none">
+                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider hidden sm:inline">Priority:</span>
+                <select 
+                  value={priorityFilter} 
+                  onChange={(e) => setPriorityFilter(e.target.value)}
+                  className="w-full sm:w-auto text-sm bg-white border border-slate-300 rounded-lg px-3 py-2 font-bold text-slate-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                >
+                  <option value="All">All Priorities</option>
+                  <option value="Unsafe">🔴 Unsafe Only</option>
+                  <option value="Attention">🟡 Attention Only</option>
+                  <option value="Minor">🟢 Minor Only</option>
+                </select>
+              </div>
+
+              <div className="flex items-center gap-2 flex-1 sm:flex-none">
+                <span className="text-xs font-extrabold text-slate-500 uppercase tracking-wider hidden sm:inline">Sort:</span>
+                <select 
+                  value={sortOrder} 
+                  onChange={(e) => setSortOrder(e.target.value)}
+                  className="w-full sm:w-auto text-sm bg-white border border-slate-300 rounded-lg px-3 py-2 font-bold text-slate-700 shadow-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 outline-none"
+                >
+                  <option value="Newest">Newest First</option>
+                  <option value="Oldest">Oldest First</option>
+                </select>
+              </div>
+            </div>
+
+            {/* View Mode Toggle */}
+            <div className="flex bg-slate-100 p-1.5 rounded-xl border border-slate-200 shadow-inner w-full sm:w-auto justify-center">
+              <button 
+                onClick={() => setViewMode('Grid')}
+                className={`flex-1 sm:flex-none px-4 py-1.5 text-sm font-bold rounded-lg transition-all ${viewMode === 'Grid' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                ⊞ Grid
+              </button>
+              <button 
+                onClick={() => setViewMode('List')}
+                className={`flex-1 sm:flex-none px-4 py-1.5 text-sm font-bold rounded-lg transition-all ${viewMode === 'List' ? 'bg-white shadow-sm text-slate-900' : 'text-slate-500 hover:text-slate-800'}`}
+              >
+                ≡ List
+              </button>
+            </div>
+          </div>
         </div>
 
         {/* Loading skeleton */}
         {loading && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={viewMode === 'Grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "flex flex-col gap-4"}>
             {[1, 2, 3].map((n) => (
-              <div key={n} className="modern-card p-6 animate-pulse h-64">
+              <div key={n} className={`modern-card p-6 animate-pulse ${viewMode === 'Grid' ? 'h-64' : 'h-32'}`}>
                 <div className="flex gap-3 mb-4">
                   <div className="h-6 bg-slate-200 rounded-md w-24" />
                   <div className="h-6 bg-slate-200 rounded-md w-20" />
@@ -258,12 +330,12 @@ export default function Dashboard() {
           <div className="modern-card text-center py-20 px-4 bg-white/50">
             <div className="text-5xl mb-4 opacity-75">🛡️</div>
             <p className="text-slate-800 font-extrabold text-xl mb-2">
-              {search || filter !== 'All' || touristMode
-                ? 'No issues match your filters'
+              {search || filter !== 'All' || touristMode || priorityFilter !== 'All'
+                ? 'No issues match your current filters'
                 : 'Pondicherry is currently safe and clean!'}
             </p>
             <p className="text-base text-slate-500 mt-2 font-medium">
-              {search || filter !== 'All' || touristMode
+              {search || filter !== 'All' || touristMode || priorityFilter !== 'All'
                 ? 'Try adjusting your search or filter criteria.'
                 : <Link href="/create-issue" className="text-blue-600 hover:underline font-bold">Be the first to report an issue →</Link>
               }
@@ -271,9 +343,9 @@ export default function Dashboard() {
           </div>
         )}
 
-        {/* Issue Grid */}
+        {/* Issue Grid / List */}
         {!loading && visible.length > 0 && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className={viewMode === 'Grid' ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" : "grid grid-cols-1 gap-5 max-w-4xl mx-auto"}>
             {visible.map((issue) => {
               const isOwner = user && (issue.reporterId === user.id || issue.reporterId?._id === user.id);
               const isDemo = issue._id?.startsWith('demo');
