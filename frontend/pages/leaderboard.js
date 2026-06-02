@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Toast from '../components/Toast';
+import SidebarLayout from '../components/SidebarLayout';
 import useAuth from '../hooks/useAuth';
 import api from '../lib/api';
 
@@ -24,34 +25,24 @@ export default function Leaderboard() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <SidebarLayout title="🏆 Leaderboard" subtitle="Top volunteers keeping the Pondicherry community safe and clean.">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {/* Hero */}
-      <div className="bg-slate-900 border-b border-slate-800">
-        <div className="max-w-2xl mx-auto px-4 py-10">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">🏆 Leaderboard</h1>
-          <p className="text-slate-400 text-base">
-            Top volunteers keeping the community safe and clean.
-          </p>
-          <div className="flex gap-3 mt-5 flex-wrap">
-            <span className="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-md font-medium">
-              Resolve = +10 pts
-            </span>
-            <span className="text-xs bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-md font-medium">
-              Verify = +5 pts
-            </span>
-          </div>
+      <div className="max-w-4xl mx-auto">
+        <div className="flex gap-3 mb-8 flex-wrap">
+          <span className="text-xs bg-white text-slate-600 border border-slate-200 px-3 py-1.5 rounded-md font-bold shadow-sm">
+            Resolve = +10 pts
+          </span>
+          <span className="text-xs bg-white text-slate-600 border border-slate-200 px-3 py-1.5 rounded-md font-bold shadow-sm">
+            Verify = +5 pts
+          </span>
         </div>
-      </div>
-
-      <div className="max-w-2xl mx-auto px-4 py-8">
 
         {/* Loading skeleton */}
         {loading && (
           <div className="space-y-3">
             {[1, 2, 3, 4].map((n) => (
-              <div key={n} className="modern-card p-4 animate-pulse flex items-center gap-4">
+              <div key={n} className="modern-card p-4 animate-pulse flex items-center gap-4 h-16">
                 <div className="w-8 h-8 bg-slate-200 rounded-full" />
                 <div className="flex-1 h-4 bg-slate-100 rounded" />
                 <div className="w-16 h-4 bg-slate-200 rounded" />
@@ -62,10 +53,10 @@ export default function Leaderboard() {
 
         {/* Empty state */}
         {!loading && entries.length === 0 && (
-          <div className="modern-card text-center py-20 px-4">
+          <div className="modern-card text-center py-20 px-4 bg-white/50">
             <div className="text-5xl mb-4 text-slate-300">🏅</div>
-            <p className="text-slate-900 font-bold text-xl mb-1">No entries yet</p>
-            <p className="text-sm text-slate-500">Resolve issues to appear on the leaderboard.</p>
+            <p className="text-slate-800 font-extrabold text-xl mb-1">No entries yet</p>
+            <p className="text-sm text-slate-500 font-medium">Resolve issues to appear on the leaderboard.</p>
           </div>
         )}
 
@@ -92,16 +83,16 @@ export default function Leaderboard() {
             key={String(entry.userId)}
             className="flex items-center gap-4 modern-card px-5 py-4 mb-3 transition-colors hover:border-slate-300"
           >
-            <span className="w-8 text-center text-xl font-bold text-slate-400">
+            <span className="w-8 text-center text-xl font-extrabold text-slate-400">
               {MEDALS[i] || `#${i + 1}`}
             </span>
-            <span className="flex-1 font-bold text-slate-900">{entry.name}</span>
-            <span className="font-bold text-sm bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1 rounded-md">
+            <span className="flex-1 font-extrabold text-slate-900">{entry.name}</span>
+            <span className="font-bold text-sm bg-blue-50 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-md shadow-sm">
               {entry.totalPoints} pts
             </span>
           </div>
         ))}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }

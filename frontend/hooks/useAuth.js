@@ -27,12 +27,17 @@ export default function useAuth({ requireAuth = true } = {}) {
     try {
       const payload = JSON.parse(atob(token.split('.')[1]));
 
-      // Token expired — clear and redirect
+      // Token expired — check if we have a refresh token
       if (payload.exp && payload.exp * 1000 < Date.now()) {
-        localStorage.removeItem('token');
-        if (requireAuth) router.replace('/login');
-        setReady(true);
-        return;
+        const refreshToken = localStorage.getItem('refreshToken');
+        if (!refreshToken) {
+          localStorage.removeItem('token');
+          if (requireAuth) router.replace('/login');
+          setReady(true);
+          return;
+        }
+        // If we have a refresh token, we allow the component to render.
+        // The first API call will fail with 401, triggering api.js to refresh the token automatically.
       }
 
       setUser(payload);

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import IssueCard from '../components/IssueCard';
 import Toast from '../components/Toast';
+import SidebarLayout from '../components/SidebarLayout';
 import useAuth from '../hooks/useAuth';
 import useProgress from '../hooks/useProgress';
 import api from '../lib/api';
@@ -73,21 +74,10 @@ export default function Volunteer() {
   if (!ready) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <SidebarLayout title="Volunteer Portal" subtitle="Accept issues reported in Pondicherry and help resolve them.">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {/* Hero */}
-      <div className="bg-slate-900 border-b border-slate-800">
-        <div className="max-w-4xl mx-auto px-4 py-10">
-          <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight mb-2">Volunteer Portal</h1>
-          <p className="text-slate-400 text-base">
-            Help keep your local community safe. Accept issues and resolve them.
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-4xl mx-auto px-4 py-8">
-
+      <div className="max-w-6xl mx-auto">
         {/* Progress strip */}
         {progressActive && (
           <div className="w-full h-1 rounded-full mb-6 overflow-hidden bg-slate-200">
@@ -96,13 +86,13 @@ export default function Volunteer() {
         )}
 
         {/* Accept Issue */}
-        <div className="modern-card p-6 mb-8 border-t-4 border-t-blue-500">
+        <div className="modern-card p-6 mb-8 border-t-4 border-t-blue-500 bg-white">
           <div className="flex items-center gap-3 mb-2">
             <span className="text-2xl">🎯</span>
-            <h2 className="text-lg font-bold text-slate-900">Accept an Issue</h2>
+            <h2 className="text-lg font-extrabold text-slate-900">Accept an Issue</h2>
           </div>
-          <p className="text-sm text-slate-500 mb-5 leading-relaxed max-w-2xl">
-            Copy an Issue ID from the main dashboard (click the <span className="font-mono bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded text-xs border border-slate-200">#xxxxxx</span> tag on any card) and paste it below to take ownership.
+          <p className="text-sm text-slate-500 mb-5 leading-relaxed max-w-2xl font-medium">
+            Copy an Issue ID from the main dashboard (click the <span className="font-mono bg-slate-100 text-slate-700 px-1.5 py-0.5 rounded border border-slate-200">#xxxxxx</span> tag on any card) and paste it below to take ownership.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <input
@@ -110,35 +100,35 @@ export default function Volunteer() {
               onChange={(e) => setIssueId(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && !accepting && acceptIssue()}
               placeholder="Paste Issue ID here..."
-              className="form-input flex-1"
+              className="form-input flex-1 shadow-sm"
             />
             <button
               onClick={acceptIssue}
               disabled={accepting}
-              className="btn-primary whitespace-nowrap"
+              className="btn-primary whitespace-nowrap px-6 shadow-sm"
             >
               {accepting ? (
                 <span className="flex items-center gap-2">
                   <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                   Accepting...
                 </span>
-              ) : 'Accept Issue'}
+              ) : 'Accept Issue →'}
             </button>
           </div>
         </div>
 
         {/* Assigned Issues header */}
-        <div className="flex items-center justify-between mb-5 border-b border-slate-200 pb-3">
+        <div className="flex items-center justify-between mb-6 border-b border-slate-200 pb-4">
           <div>
-            <h2 className="text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-xl font-extrabold text-slate-900 tracking-tight">
               My Assigned Issues
-              {!loading && <span className="ml-2 text-sm font-medium text-slate-400">({assigned.length})</span>}
+              {!loading && <span className="ml-2 text-sm font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full">{assigned.length}</span>}
             </h2>
-            <p className="text-sm text-slate-500 mt-1">Issues you are responsible for resolving</p>
+            <p className="text-sm text-slate-500 mt-1 font-medium">Issues you are responsible for resolving in Pondicherry</p>
           </div>
           <button
             onClick={fetchAssigned}
-            className="btn-secondary py-1.5 px-3 text-xs"
+            className="flex items-center gap-2 bg-white hover:bg-slate-50 disabled:opacity-50 text-slate-700 text-sm font-bold px-4 py-2 rounded-lg border border-slate-200 transition-all shadow-sm"
           >
             🔄 Refresh
           </button>
@@ -146,9 +136,9 @@ export default function Volunteer() {
 
         {/* Loading skeleton */}
         {loading && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2].map((n) => (
-              <div key={n} className="modern-card p-6 animate-pulse">
+              <div key={n} className="modern-card p-6 animate-pulse h-64">
                 <div className="flex gap-3 mb-4">
                   <div className="h-6 bg-slate-200 rounded-md w-24" />
                   <div className="h-6 bg-slate-200 rounded-md w-20" />
@@ -162,38 +152,46 @@ export default function Volunteer() {
 
         {/* Empty state */}
         {!loading && assigned.length === 0 && (
-          <div className="modern-card text-center py-20 px-4">
+          <div className="modern-card text-center py-20 px-4 bg-white/50">
             <div className="text-5xl mb-4 text-slate-300">🙌</div>
-            <p className="text-slate-900 font-bold text-xl mb-2">No assigned issues yet</p>
-            <p className="text-slate-500">Accept an issue above to start helping your community.</p>
+            <p className="text-slate-800 font-extrabold text-xl mb-2">No assigned issues yet</p>
+            <p className="text-slate-500 font-medium">Accept an issue above to start helping the Pondicherry community.</p>
           </div>
         )}
 
-        {/* Issue cards */}
-        {!loading && assigned.map((issue) => (
-          <IssueCard
-            key={issue._id}
-            issue={issue}
-            actions={
-              STATUS_NEXT[issue.status] ? (
-                <button
-                  disabled={updatingId === issue._id}
-                  onClick={() => updateStatus(issue._id, issue.status)}
-                  className="btn-primary py-2 text-xs"
-                >
-                  {updatingId === issue._id ? (
-                    <><span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin mr-1" /> Updating...</>
-                  ) : `✓ Mark as ${STATUS_NEXT[issue.status]}`}
-                </button>
-              ) : (
-                <span className="text-xs text-emerald-700 font-medium bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-lg">
-                  ✅ Fully resolved
-                </span>
-              )
-            }
-          />
-        ))}
+        {/* Issue Grid */}
+        {!loading && assigned.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {assigned.map((issue) => (
+              <div key={issue._id} className="h-full">
+                <IssueCard
+                  issue={issue}
+                  actions={
+                    STATUS_NEXT[issue.status] ? (
+                      <button
+                        disabled={updatingId === issue._id}
+                        onClick={() => updateStatus(issue._id, issue.status)}
+                        className="btn-primary w-full py-2.5 text-xs font-bold"
+                      >
+                        {updatingId === issue._id ? (
+                          <span className="flex items-center justify-center gap-2">
+                            <span className="w-3 h-3 border-2 border-white/40 border-t-white rounded-full animate-spin" /> 
+                            Updating...
+                          </span>
+                        ) : `✓ Mark as ${STATUS_NEXT[issue.status]}`}
+                      </button>
+                    ) : (
+                      <span className="text-xs w-full text-center text-emerald-700 font-bold bg-emerald-50 border border-emerald-200 px-3 py-2.5 rounded-lg shadow-sm">
+                        ✅ Fully resolved
+                      </span>
+                    )
+                  }
+                />
+              </div>
+            ))}
+          </div>
+        )}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }

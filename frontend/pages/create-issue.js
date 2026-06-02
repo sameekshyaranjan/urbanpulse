@@ -1,6 +1,7 @@
 import { useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Toast from '../components/Toast';
+import SidebarLayout from '../components/SidebarLayout';
 import useAuth from '../hooks/useAuth';
 import api from '../lib/api';
 
@@ -106,54 +107,43 @@ export default function CreateIssue() {
     }
   };
 
-  const labelClass = 'block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wide';
+  const labelClass = 'block text-xs font-extrabold text-slate-700 mb-2 uppercase tracking-wide';
 
   if (!ready) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-start justify-center py-10 px-4">
+    <SidebarLayout title="🚨 Report an Issue" subtitle="Report hazards, infrastructure issues, or sanitation problems to help keep Pondicherry safe.">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      <div className="modern-card w-full max-w-lg p-8">
-        {/* Header */}
-        <div className="mb-8 border-b border-slate-100 pb-6">
-          <div className="flex items-center gap-3 mb-2">
-            <span className="text-3xl">🚨</span>
-            <h1 className="text-2xl font-extrabold text-slate-900 tracking-tight">Report an Issue</h1>
-          </div>
-          <p className="text-sm text-slate-500 font-medium leading-relaxed">
-            Report hazards, infrastructure issues, or sanitation problems to help keep the community safe.
-          </p>
-        </div>
-
+      <div className="max-w-2xl mx-auto">
         {roleError && (
-          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm rounded-lg px-4 py-3 mb-6 flex items-center gap-2">
+          <div className="bg-amber-50 border border-amber-200 text-amber-800 text-sm font-bold rounded-lg px-4 py-3 mb-6 flex items-center gap-2 shadow-sm">
             ⚠️ {roleError}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="modern-card p-6 sm:p-8 space-y-6">
           <div>
             <label className={labelClass}>Issue Title</label>
-            <input name="title" value={form.title} onChange={handleChange} required className="form-input" placeholder="e.g. Broken streetlight near tourist beach" />
+            <input name="title" value={form.title} onChange={handleChange} required className="form-input shadow-sm" placeholder="e.g. Broken streetlight near Promenade beach" />
           </div>
 
           <div>
             <label className={labelClass}>Description</label>
-            <textarea name="description" value={form.description} onChange={handleChange} required rows={3} className="form-input resize-none" placeholder="Describe the issue clearly — location details help volunteers find it faster." />
+            <textarea name="description" value={form.description} onChange={handleChange} required rows={3} className="form-input resize-none shadow-sm" placeholder="Describe the issue clearly — location details help volunteers find it faster." />
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div>
               <label className={labelClass}>Issue Type</label>
-              <select name="issueType" value={form.issueType} onChange={handleChange} className="form-input">
+              <select name="issueType" value={form.issueType} onChange={handleChange} className="form-input shadow-sm font-medium text-slate-700">
                 <option value="">Select type...</option>
                 {ISSUE_TYPES.map((t) => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
             <div>
               <label className={labelClass}>Priority</label>
-              <select name="priority" value={form.priority} onChange={handleChange} className="form-input">
+              <select name="priority" value={form.priority} onChange={handleChange} className="form-input shadow-sm font-medium text-slate-700">
                 <option value="">Select priority...</option>
                 {PRIORITIES.map((p) => <option key={p} value={p}>{p}</option>)}
               </select>
@@ -161,13 +151,13 @@ export default function CreateIssue() {
           </div>
 
           {/* Photo */}
-          <div>
+          <div className="bg-slate-50 p-5 rounded-xl border border-slate-200">
             <label className={labelClass}>Photo Evidence</label>
-            <div className="flex gap-2 mb-3">
+            <div className="flex gap-2 mb-4">
               {[{ key: 'upload', icon: '📁', label: 'Upload' }, { key: 'camera', icon: '📸', label: 'Live Camera' }].map(({ key, icon, label }) => (
                 <button key={key} type="button" onClick={() => switchMode(key)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-colors ${
-                    imageMode === key ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-600 border-slate-200 hover:border-slate-400 hover:text-slate-900'
+                  className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold border transition-colors shadow-sm ${
+                    imageMode === key ? 'bg-blue-600 text-white border-blue-600' : 'bg-white text-slate-700 border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
                   {icon} {label}
@@ -177,72 +167,72 @@ export default function CreateIssue() {
 
             {imagePreview ? (
               <div className="relative rounded-lg overflow-hidden border border-slate-200 shadow-sm">
-                <img src={imagePreview} alt="Preview" className="w-full h-48 object-cover" />
-                <button type="button" onClick={clearImage} className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 text-white text-xs px-3 py-1.5 rounded-md transition-colors">✕ Remove</button>
+                <img src={imagePreview} alt="Preview" className="w-full h-56 object-cover" />
+                <button type="button" onClick={clearImage} className="absolute top-2 right-2 bg-black/70 hover:bg-black/90 text-white font-bold text-xs px-3 py-1.5 rounded-md transition-colors">✕ Remove</button>
               </div>
             ) : imageMode === 'upload' ? (
-              <label className="flex flex-col items-center justify-center w-full h-40 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-all bg-slate-50/50">
+              <label className="flex flex-col items-center justify-center w-full h-48 border-2 border-dashed border-slate-300 rounded-lg cursor-pointer hover:border-blue-500 hover:bg-blue-50/50 transition-all bg-white shadow-sm">
                 <span className="text-3xl mb-2 text-slate-400">📁</span>
-                <span className="text-sm font-medium text-slate-600">Click to upload a photo</span>
-                <span className="text-xs text-slate-400 mt-1">JPEG or PNG · max 5MB</span>
+                <span className="text-sm font-bold text-slate-700">Click to upload a photo</span>
+                <span className="text-xs font-medium text-slate-500 mt-1">JPEG or PNG · max 5MB</span>
                 <input ref={fileInputRef} type="file" accept="image/jpeg,image/png" onChange={handleFileChange} className="hidden" />
               </label>
             ) : (
-              <div className="rounded-lg overflow-hidden border border-slate-200 bg-black">
+              <div className="rounded-lg overflow-hidden border border-slate-200 bg-black shadow-sm">
                 {cameraError ? (
-                  <div className="flex flex-col items-center justify-center h-48 gap-3 px-4 text-center">
+                  <div className="flex flex-col items-center justify-center h-56 gap-3 px-4 text-center">
                     <span className="text-2xl">🚫</span>
                     <p className="text-sm font-medium text-red-400">{cameraError}</p>
-                    <button type="button" onClick={startCamera} className="text-sm text-blue-400 hover:underline mt-1 font-medium">Try again</button>
+                    <button type="button" onClick={startCamera} className="text-sm text-blue-400 hover:underline mt-1 font-bold">Try again</button>
                   </div>
                 ) : cameraActive ? (
                   <div className="relative">
-                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-56 object-cover" />
+                    <video ref={videoRef} autoPlay playsInline muted className="w-full h-64 object-cover" />
                     <div className="absolute bottom-4 left-0 right-0 flex justify-center">
                       <button type="button" onClick={capturePhoto} className="w-16 h-16 rounded-full bg-white border-4 border-slate-200 hover:border-blue-400 shadow-lg transition-all active:scale-95 flex items-center justify-center">
                         <span className="w-12 h-12 rounded-full block bg-blue-600" />
                       </button>
                     </div>
-                    <button type="button" onClick={stopCamera} className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs px-3 py-1.5 rounded-md transition-colors">✕ Close</button>
+                    <button type="button" onClick={stopCamera} className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white font-bold text-xs px-3 py-1.5 rounded-md transition-colors">✕ Close</button>
                   </div>
                 ) : (
-                  <div className="flex flex-col items-center justify-center h-40 gap-3 cursor-pointer hover:bg-slate-900 transition-colors" onClick={startCamera}>
+                  <div className="flex flex-col items-center justify-center h-48 gap-3 cursor-pointer hover:bg-slate-900 transition-colors" onClick={startCamera}>
                     <span className="text-4xl text-slate-400">📸</span>
-                    <span className="text-sm font-medium text-slate-300">Tap to open camera</span>
+                    <span className="text-sm font-bold text-slate-300">Tap to open camera</span>
                   </div>
                 )}
               </div>
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-2 gap-6">
             <div>
               <label className={labelClass}>Latitude</label>
-              <input name="lat" type="number" step="any" value={form.lat} onChange={handleChange} required className="form-input" placeholder="15.2993" />
+              <input name="lat" type="number" step="any" value={form.lat} onChange={handleChange} required className="form-input shadow-sm" placeholder="11.9139" />
             </div>
             <div>
               <label className={labelClass}>Longitude</label>
-              <input name="lng" type="number" step="any" value={form.lng} onChange={handleChange} required className="form-input" placeholder="74.1240" />
+              <input name="lng" type="number" step="any" value={form.lng} onChange={handleChange} required className="form-input shadow-sm" placeholder="79.8145" />
             </div>
           </div>
 
           <button type="button" onClick={useMyLocation}
-            className="w-full btn-secondary text-blue-600 border-blue-200 hover:border-blue-400 hover:bg-blue-50 py-3">
+            className="w-full btn-secondary text-blue-700 font-bold border-blue-200 hover:border-blue-400 hover:bg-blue-50 py-3 shadow-sm">
             📍 Use My Current Location
           </button>
 
           <button type="submit" disabled={loading || !!roleError}
-            className="w-full btn-primary py-3.5 text-base mt-2"
+            className="w-full btn-primary py-4 text-base font-extrabold mt-4 shadow-md shadow-blue-500/20"
           >
             {loading ? (
               <span className="flex items-center justify-center gap-2">
-                <span className="w-4 h-4 border-2 border-white/40 border-t-white rounded-full animate-spin" />
+                <span className="w-5 h-5 border-2 border-white/40 border-t-white rounded-full animate-spin" />
                 Uploading & Submitting...
               </span>
             ) : '🚨 Submit Issue Report'}
           </button>
         </form>
       </div>
-    </div>
+    </SidebarLayout>
   );
 }

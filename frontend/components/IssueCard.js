@@ -15,12 +15,12 @@ const PRIORITY_RULES = [
 const PRIORITY_DEFAULT = { label: '🟢 Minor', cls: 'bg-slate-50 text-slate-700 border border-slate-200' };
 
 const LOCATION_RULES = [
-  { words: ['beach', 'coast', 'sea', 'shore', 'calangute', 'baga', 'anjuna', 'vagator', 'palolem'],
-    label: '🏖️ Near Beach' },
-  { words: ['market', 'shop', 'bazaar', 'flea', 'store'],
+  { words: ['beach', 'promenade', 'sea', 'shore', 'serenity', 'paradise', 'auroville', 'rock'],
+    label: '🏖️ Coastal / Auroville' },
+  { words: ['market', 'shop', 'bazaar', 'goubbert', 'sunday', 'store'],
     label: '🛍️ Market Area' },
-  { words: ['hotel', 'hostel', 'resort', 'tourist', 'visitor', 'heritage', 'monument', 'attraction'],
-    label: '🗺️ Tourist Zone' },
+  { words: ['hotel', 'hostel', 'resort', 'tourist', 'visitor', 'heritage', 'monument', 'white town', 'ashram', 'french'],
+    label: '🗺️ Heritage Zone' },
 ];
 const LOCATION_DEFAULT = '📍 Local Area';
 
@@ -64,7 +64,7 @@ export default function IssueCard({ issue, actions }) {
   };
 
   return (
-    <div className="modern-card p-5 mb-4 hover:-translate-y-1 hover:shadow-md transition-all cursor-default">
+    <div className="modern-card p-5 hover:-translate-y-1 hover:shadow-md transition-all cursor-default h-full flex flex-col">
       {/* Top row */}
       <div className="flex items-start justify-between gap-2 mb-3 flex-wrap">
         <div className="flex items-center gap-1.5 flex-wrap">
@@ -97,11 +97,11 @@ export default function IssueCard({ issue, actions }) {
 
       {/* Description */}
       {description && (
-        <p className="text-sm text-slate-600 mb-3 line-clamp-2 leading-relaxed">{description}</p>
+        <p className="text-sm text-slate-600 mb-3 line-clamp-3 leading-relaxed">{description}</p>
       )}
 
       {/* Location + map */}
-      <div className="flex items-center gap-2 mb-3 flex-wrap">
+      <div className="flex items-center gap-2 mb-3 flex-wrap mt-auto">
         <span className="text-xs text-slate-500 font-medium">{locationLabel}</span>
         {hasCoords && (
           <>
@@ -125,7 +125,7 @@ export default function IssueCard({ issue, actions }) {
             src={imageUrl}
             alt={title || 'Issue photo'}
             loading="lazy"
-            className="w-full h-48 object-cover"
+            className="w-full h-40 object-cover"
           />
         </div>
       )}

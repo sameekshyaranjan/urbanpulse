@@ -2,7 +2,7 @@
 
 **Civic & Tourism Safety, Simplified**
 
-A full-stack platform where citizens and tourists report public safety issues across Goa. Local volunteers accept and resolve them. Every resolved issue makes the destination safer for everyone.
+A full-stack platform where citizens and tourists report public safety issues across Pondicherry. Local volunteers accept and resolve them. Every resolved issue makes the destination safer for everyone.
 
 ---
 
@@ -15,7 +15,8 @@ A full-stack platform where citizens and tourists report public safety issues ac
 - 💰 **Sponsorship tracking** — link sponsors to unresolved issues
 - 🔐 **JWT authentication** — citizen, volunteer, and admin roles
 - 🗺️ **Tourist Mode** — filter to safety-relevant issues for visitors
-- 📸 **Live camera + file upload** — Cloudinary-backed image storage
+- 📸 **Live camera + file upload** — ImageKit-backed image storage
+- 📱 **Sidebar Dashboard Layout** — professional SaaS experience
 
 ---
 
@@ -26,7 +27,7 @@ A full-stack platform where citizens and tourists report public safety issues ac
 | Backend | Node.js + Express + MongoDB (Mongoose) |
 | Frontend | Next.js 14 (Pages Router) + Tailwind CSS |
 | Auth | JWT (15m access + 7d refresh) |
-| Images | Cloudinary |
+| Images | ImageKit |
 | Geo | MongoDB 2dsphere + $nearSphere |
 
 ---
@@ -36,7 +37,7 @@ A full-stack platform where citizens and tourists report public safety issues ac
 ### Prerequisites
 - Node.js 18+
 - MongoDB Atlas account (or local MongoDB)
-- Cloudinary account
+- ImageKit account
 
 ### Backend
 
@@ -69,9 +70,9 @@ npm run dev                         # http://localhost:3000
 | `JWT_SECRET` | ✅ | 64-char random hex |
 | `JWT_REFRESH_SECRET` | ✅ | 64-char random hex (different) |
 | `ALLOWED_ORIGINS` | ✅ | Frontend URL (Render URL in production) |
-| `CLOUDINARY_CLOUD_NAME` | ⚠️ | Required for image uploads |
-| `CLOUDINARY_API_KEY` | ⚠️ | Required for image uploads |
-| `CLOUDINARY_API_SECRET` | ⚠️ | Required for image uploads |
+| `IMAGEKIT_PUBLIC_KEY` | ⚠️ | Required for image uploads |
+| `IMAGEKIT_PRIVATE_KEY` | ⚠️ | Required for image uploads |
+| `IMAGEKIT_URL_ENDPOINT` | ⚠️ | Required for image uploads |
 
 Generate JWT secrets:
 ```bash
@@ -152,7 +153,7 @@ urbanpulse/
 │   ├── app.js
 │   └── server.js
 └── frontend/
-    ├── components/      # Navbar, IssueCard, Toast, ProgressBar
+    ├── components/      # Navbar, SidebarLayout, IssueCard, Toast, ProgressBar
     ├── hooks/           # useAuth, useProgress
     ├── lib/             # axios instance
     ├── pages/           # Next.js pages

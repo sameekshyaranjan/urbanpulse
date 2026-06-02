@@ -72,7 +72,7 @@ export default function App({ Component, pageProps }) {
   return (
     <>
       <ProgressBar />
-      <Navbar />
+      {['/', '/login', '/register'].includes(router.pathname) && <Navbar />}
       {globalToast && (
         <Toast
           message={globalToast.message}

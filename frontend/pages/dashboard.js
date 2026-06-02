@@ -2,18 +2,19 @@ import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import IssueCard from '../components/IssueCard';
 import Toast from '../components/Toast';
+import SidebarLayout from '../components/SidebarLayout';
 import useAuth from '../hooks/useAuth';
 import useProgress from '../hooks/useProgress';
 import api from '../lib/api';
 
-const DEFAULT_LAT = 15.2993;
-const DEFAULT_LNG = 74.1240;
+const DEFAULT_LAT = 11.9139;
+const DEFAULT_LNG = 79.8145;
 const DEFAULT_RADIUS = 10000;
 
 const STATUSES = ['All', 'Reported', 'Assigned', 'In Progress', 'Resolved', 'Verified'];
 
 const STAT_CONFIG = [
-  { label: 'Total Issues',  key: 'total',        bg: 'bg-slate-50',    border: 'border-slate-200',    text: 'text-slate-800',    icon: '📋' },
+  { label: 'Total Issues',  key: 'total',        bg: 'bg-white',       border: 'border-slate-200',    text: 'text-slate-800',    icon: '📋' },
   { label: 'Reported',      key: 'Reported',      bg: 'bg-red-50',      border: 'border-red-200',      text: 'text-red-700',      icon: '🚨' },
   { label: 'In Progress',   key: 'In Progress',   bg: 'bg-amber-50',    border: 'border-amber-200',    text: 'text-amber-700',    icon: '🔧' },
   { label: 'Resolved',      key: 'Resolved',      bg: 'bg-cyan-50',     border: 'border-cyan-200',     text: 'text-cyan-700',     icon: '✅' },
@@ -27,40 +28,40 @@ const PROGRESS_COLORS = {
   Verified:      'bg-emerald-500',
 };
 
-const GOA_LAT = 15.2993;
-const GOA_LNG = 74.1240;
+const PONDI_LAT = 11.9139;
+const PONDI_LNG = 79.8145;
 
 const DEMO_ISSUES = [
   {
     _id: 'demo1',
-    title: 'Unsafe lighting near Calangute beach road',
-    description: 'Street lights on the coastal road near Calangute beach are broken. Very dangerous for tourists walking at night.',
+    title: 'Unsafe lighting near Promenade Beach',
+    description: 'Street lights on the coastal road near the Gandhi statue are broken. Very dark at night.',
     status: 'Reported',
-    location: { coordinates: [GOA_LNG + 0.01, GOA_LAT + 0.01] },
+    location: { coordinates: [PONDI_LNG + 0.01, PONDI_LAT + 0.01] },
     createdAt: new Date(Date.now() - 86400000 * 1).toISOString(),
   },
   {
     _id: 'demo2',
-    title: 'Broken walkway near Anjuna tourist area',
-    description: 'Cracked pavement near the Anjuna flea market entrance. Several visitors have tripped and fallen.',
+    title: 'Broken walkway in White Town',
+    description: 'Cracked pavement near the French Quarter cafes. Several visitors have tripped.',
     status: 'In Progress',
-    location: { coordinates: [GOA_LNG - 0.01, GOA_LAT - 0.01] },
+    location: { coordinates: [PONDI_LNG - 0.01, PONDI_LAT - 0.01] },
     createdAt: new Date(Date.now() - 86400000 * 3).toISOString(),
   },
   {
     _id: 'demo3',
-    title: 'Garbage near Baga beach market',
-    description: 'Uncollected garbage near the Baga beach market causing health hazards and bad odour for tourists.',
+    title: 'Garbage near Auroville entrance',
+    description: 'Uncollected garbage near the visitor center causing health hazards.',
     status: 'Resolved',
-    location: { coordinates: [GOA_LNG + 0.02, GOA_LAT - 0.02] },
+    location: { coordinates: [PONDI_LNG + 0.02, PONDI_LAT - 0.02] },
     createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
   },
   {
     _id: 'demo4',
-    title: 'Dark street near hostel area in Panaji',
-    description: 'No street lighting on the lane behind the popular hostel cluster in Panaji. Unsafe after 9pm.',
+    title: 'Pothole on Heritage Street',
+    description: 'Large pothole on the main heritage lane. Dangerous for two-wheelers.',
     status: 'Assigned',
-    location: { coordinates: [GOA_LNG - 0.02, GOA_LAT + 0.02] },
+    location: { coordinates: [PONDI_LNG - 0.02, PONDI_LAT + 0.02] },
     createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
   },
 ];
@@ -148,61 +149,44 @@ export default function Dashboard() {
   if (!ready) return null;
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <SidebarLayout title="Issues Overview" subtitle="Helping tourists and local communities stay safer and cleaner together.">
       {toast && <Toast message={toast.message} type={toast.type} onClose={() => setToast(null)} />}
 
-      {/* ── Hero banner ── */}
-      <div className="bg-slate-900 border-b border-slate-800">
-        <div className="max-w-5xl mx-auto px-4 py-10 sm:py-12">
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            <div>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="text-slate-400 text-xs font-semibold uppercase tracking-widest">Goa · Coastal Safety</span>
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight">
-                Issues Overview
-              </h1>
-              <p className="text-slate-400 text-base mt-2 max-w-md">
-                Helping tourists and local communities stay safer and cleaner together.
-              </p>
-              {myCount > 0 && (
-                <span className="inline-block mt-3 text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-md font-medium border border-slate-700">
-                  {myCount} issue{myCount > 1 ? 's' : ''} reported by you
-                </span>
-              )}
-            </div>
+      <div className="max-w-6xl mx-auto">
 
-            <div className="flex items-center gap-3 flex-wrap">
-              {/* Tourist Mode */}
-              <button
-                onClick={() => setTouristMode((t) => !t)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium border transition-all ${
-                  touristMode
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700'
-                }`}
-              >
-                🗺️ Tourist Mode
-              </button>
-              <button
-                onClick={fetchNearby}
-                disabled={loading}
-                className="flex items-center gap-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-white text-sm font-medium px-4 py-2 rounded-lg border border-slate-700 transition-all"
-              >
-                {loading ? '⏳' : '🔄'} Refresh
-              </button>
-            </div>
-          </div>
-
-          {touristMode && (
-            <div className="mt-4 text-sm text-blue-300 bg-blue-900/40 border border-blue-800/50 rounded-lg px-4 py-2 inline-block">
-              🏖️ Showing safety-related and tourist-relevant issues only
-            </div>
+        {/* Toolbar */}
+        <div className="flex items-center justify-between gap-4 flex-wrap mb-8">
+          {myCount > 0 && (
+            <span className="inline-block text-xs bg-white text-slate-600 px-3 py-1.5 rounded-md font-bold border border-slate-200 shadow-sm">
+              {myCount} issue{myCount > 1 ? 's' : ''} reported by you
+            </span>
           )}
+          <div className="flex items-center gap-3 flex-wrap ml-auto">
+            <button
+              onClick={() => setTouristMode((t) => !t)}
+              className={`flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold border transition-all shadow-sm ${
+                touristMode
+                  ? 'bg-blue-600 text-white border-blue-600 shadow-blue-500/20'
+                  : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+              }`}
+            >
+              🗺️ Tourist Mode
+            </button>
+            <button
+              onClick={fetchNearby}
+              disabled={loading}
+              className="flex items-center gap-2 bg-white hover:bg-slate-50 disabled:opacity-50 text-slate-700 text-sm font-bold px-4 py-2.5 rounded-lg border border-slate-200 transition-all shadow-sm"
+            >
+              {loading ? '⏳' : '🔄'} Refresh
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div className="max-w-5xl mx-auto px-4 py-8">
+        {touristMode && (
+          <div className="mb-6 text-sm text-blue-800 bg-blue-50 border border-blue-200 rounded-lg px-4 py-3 font-semibold shadow-sm">
+            🏖️ Showing safety-related and tourist-relevant issues only
+          </div>
+        )}
 
         {/* Progress strip */}
         {progressActive && (
@@ -210,15 +194,6 @@ export default function Dashboard() {
             <div className="h-full bg-blue-500 transition-all duration-300 ease-out" style={{ width: `${progress}%` }} />
           </div>
         )}
-
-        {/* Story banner */}
-        <div className="modern-card px-6 py-4 mb-8 bg-white border-l-4 border-l-blue-500 flex items-start gap-4">
-          <span className="text-2xl mt-0.5">🌴</span>
-          <p className="text-slate-700 text-sm leading-relaxed">
-            Tourists can report unsafe areas, and local volunteers help resolve them —
-            <span className="font-bold text-slate-900"> making Goa safer for everyone.</span>
-          </p>
-        </div>
 
         {/* Stat Cards */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
@@ -228,55 +203,31 @@ export default function Dashboard() {
               className={`${bg} border ${border} rounded-xl p-5 hover:-translate-y-0.5 transition-transform cursor-default shadow-sm`}
             >
               <div className="text-2xl mb-2">{icon}</div>
-              <div className={`text-3xl font-bold ${text}`}>{stats[key] ?? 0}</div>
-              <div className="text-xs text-slate-500 mt-1 font-medium">{label}</div>
+              <div className={`text-3xl font-extrabold ${text}`}>{stats[key] ?? 0}</div>
+              <div className="text-xs text-slate-500 mt-1 font-bold uppercase tracking-wide">{label}</div>
             </div>
           ))}
         </div>
 
-        {/* Status distribution */}
-        {issues.length > 0 && (
-          <div className="modern-card p-6 mb-8">
-            <h3 className="text-sm font-bold text-slate-800 mb-4 tracking-tight">Safety Status Distribution</h3>
-            <div className="flex h-3 rounded-full overflow-hidden gap-0.5 bg-slate-100">
-              {STATUSES.slice(1).map((s) => {
-                const pct = (stats[s] / issues.length) * 100;
-                return pct > 0 ? (
-                  <div key={s} title={`${s}: ${stats[s]}`} className={`${PROGRESS_COLORS[s]} transition-all`} style={{ width: `${pct}%` }} />
-                ) : null;
-              })}
-            </div>
-            <div className="flex flex-wrap gap-4 mt-4">
-              {STATUSES.slice(1).map((s) => stats[s] > 0 && (
-                <span key={s} className="flex items-center gap-2 text-xs text-slate-600 font-medium">
-                  <span className={`w-2 h-2 rounded-full ${PROGRESS_COLORS[s]}`} />
-                  {s} <span className="text-slate-900 font-bold">({stats[s]})</span>
-                </span>
-              ))}
-            </div>
-          </div>
-        )}
-
         {/* Search + Filter */}
         <div className="modern-card p-5 mb-8">
-          <h3 className="text-sm font-bold text-slate-800 mb-3 tracking-tight">Issues Near You</h3>
           <div className="flex flex-col sm:flex-row gap-4">
             <input
               type="text"
-              placeholder="🔍 Search by title..."
+              placeholder="🔍 Search issues..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="form-input flex-1"
+              className="form-input flex-1 shadow-sm"
             />
             <div className="flex gap-2 flex-wrap">
               {STATUSES.map((s) => (
                 <button
                   key={s}
                   onClick={() => setFilter(s)}
-                  className={`text-xs px-4 py-2 rounded-lg font-medium transition-colors border ${
+                  className={`text-xs px-4 py-2 rounded-lg font-bold transition-all border ${
                     filter === s
-                      ? 'bg-slate-900 text-white border-slate-900'
-                      : 'bg-white border-slate-200 text-slate-600 hover:border-slate-400 hover:text-slate-900'
+                      ? 'bg-slate-800 text-white border-slate-800 shadow-md'
+                      : 'bg-slate-50 border-slate-200 text-slate-600 hover:border-slate-300 hover:bg-slate-100'
                   }`}
                 >
                   {s}
@@ -288,9 +239,9 @@ export default function Dashboard() {
 
         {/* Loading skeleton */}
         {loading && (
-          <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1, 2, 3].map((n) => (
-              <div key={n} className="modern-card p-6 animate-pulse">
+              <div key={n} className="modern-card p-6 animate-pulse h-64">
                 <div className="flex gap-3 mb-4">
                   <div className="h-6 bg-slate-200 rounded-md w-24" />
                   <div className="h-6 bg-slate-200 rounded-md w-20" />
@@ -304,43 +255,48 @@ export default function Dashboard() {
 
         {/* Empty state */}
         {!loading && visible.length === 0 && (
-          <div className="modern-card text-center py-20 px-4">
-            <div className="text-5xl mb-4">🛡️</div>
-            <p className="text-slate-900 font-bold text-xl mb-2">
+          <div className="modern-card text-center py-20 px-4 bg-white/50">
+            <div className="text-5xl mb-4 opacity-75">🛡️</div>
+            <p className="text-slate-800 font-extrabold text-xl mb-2">
               {search || filter !== 'All' || touristMode
-                ? 'No issues found for your filter'
-                : 'No issues reported here — this area is currently safe'}
+                ? 'No issues match your filters'
+                : 'Pondicherry is currently safe and clean!'}
             </p>
-            <p className="text-base text-slate-500 mt-2">
+            <p className="text-base text-slate-500 mt-2 font-medium">
               {search || filter !== 'All' || touristMode
                 ? 'Try adjusting your search or filter criteria.'
-                : <Link href="/create-issue" className="text-blue-600 hover:underline font-medium">Be the first to report an issue →</Link>
+                : <Link href="/create-issue" className="text-blue-600 hover:underline font-bold">Be the first to report an issue →</Link>
               }
             </p>
           </div>
         )}
 
-        {/* Issue list */}
-        {!loading && visible.map((issue) => {
-          const isOwner = user && (issue.reporterId === user.id || issue.reporterId?._id === user.id);
-          const isDemo = issue._id?.startsWith('demo');
-          return (
-            <IssueCard
-              key={issue._id}
-              issue={issue}
-              actions={isOwner && issue.status === 'Reported' && !isDemo ? (
-                <button
-                  onClick={() => handleDelete(issue._id)}
-                  disabled={deletingId === issue._id}
-                  className="btn-secondary py-1.5 px-3 text-xs text-red-600 border-red-200 hover:border-red-400 hover:bg-red-50"
-                >
-                  {deletingId === issue._id ? 'Deleting...' : '🗑 Delete'}
-                </button>
-              ) : null}
-            />
-          );
-        })}
+        {/* Issue Grid */}
+        {!loading && visible.length > 0 && (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {visible.map((issue) => {
+              const isOwner = user && (issue.reporterId === user.id || issue.reporterId?._id === user.id);
+              const isDemo = issue._id?.startsWith('demo');
+              return (
+                <div key={issue._id} className="h-full">
+                  <IssueCard
+                    issue={issue}
+                    actions={isOwner && issue.status === 'Reported' && !isDemo ? (
+                      <button
+                        onClick={() => handleDelete(issue._id)}
+                        disabled={deletingId === issue._id}
+                        className="btn-secondary py-1.5 px-3 text-xs text-red-600 border-red-200 hover:border-red-400 hover:bg-red-50 w-full font-bold"
+                      >
+                        {deletingId === issue._id ? 'Deleting...' : '🗑 Delete Issue'}
+                      </button>
+                    ) : null}
+                  />
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
-    </div>
+    </SidebarLayout>
   );
 }
