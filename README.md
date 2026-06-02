@@ -1,80 +1,95 @@
 # UrbanPulse 🏙️
 
-**Civic & Tourism Safety, Simplified**
-
-A full-stack platform where citizens and tourists report public safety issues across Pondicherry. Local volunteers accept and resolve them. Every resolved issue makes the destination safer for everyone.
+> **Civic & Tourism Safety, Pondicherry** — A real-time issue reporting and volunteer resolution platform built to make the city safer for citizens and tourists alike.
 
 ---
 
-## Features
+## 🌟 Overview
 
-- 📍 **Geo-based issue reporting** — report problems with live location or camera
-- 🗺️ **Nearby issues map** — view issues within 10km, open in Google Maps
-- 🙋 **Volunteer system** — atomic issue assignment, no double-booking
-- 🏆 **Leaderboard** — points for resolving (+10) and verifying (+5) issues
-- 💰 **Sponsorship tracking** — link sponsors to unresolved issues
-- 🔐 **JWT authentication** — citizen, volunteer, and admin roles
-- 🗺️ **Tourist Mode** — filter to safety-relevant issues for visitors
-- 📸 **Live camera + file upload** — ImageKit-backed image storage
-- 📱 **Sidebar Dashboard Layout** — professional SaaS experience
+UrbanPulse is a full-stack civic-tech web application designed specifically for **Pondicherry**. Citizens and tourists can report public safety issues — from broken streetlights on Promenade Beach to potholes on Heritage Street. Local volunteers then accept, resolve, and verify these issues to build a cleaner, safer community.
 
 ---
 
-## Tech Stack
+## ✨ Features
+
+### Public Pages (Unauthenticated)
+- 🌃 **Cyber-Pulse Landing Page** — Dark glassmorphism hero with neon gradients, animated background blobs, and a structured grid pattern
+- 🔐 **Secure Auth Forms** — Glass-panel login and registration forms with neon accent inputs
+- 🎭 **Role Selection** — Register as a **Citizen** (report issues) or **Volunteer** (resolve issues)
+
+### Authenticated Dashboard
+- 📊 **Issues Overview** — Live grid/list of nearby reported issues within 10km of Pondicherry
+- 📍 **Geo-Targeted Reporting** — Report issues with live GPS coordinates, view on Google Maps
+- 🗺️ **Tourist Mode** — One-click filter to show only safety-relevant issues for visitors
+- 🔍 **Smart Filtering** — Filter by status (Reported, Assigned, In Progress, Resolved, Verified)
+- 🎯 **Priority Filter** — Auto-categorised as 🔴 Unsafe, 🟡 Attention, or 🟢 Minor based on keywords
+- 🔢 **Sort Order** — Sort issues by Newest First or Oldest First
+- ⊞ **View Mode Toggle** — Switch between a Masonry Grid view and a dense List view
+- 📸 **Image Uploads** — Upload photos via file picker or live camera capture (ImageKit-backed)
+- 🙋 **Volunteer Portal** — Accept and resolve assigned issues with atomic race-condition-safe locking
+- 🏆 **Leaderboard** — Points system (+10 for resolving, +5 for verifying), ranked volunteer list
+- 📱 **Sidebar Navigation** — Dark slate sidebar with mobile-responsive tab strip
+
+---
+
+## 🛠️ Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Backend | Node.js + Express + MongoDB (Mongoose) |
-| Frontend | Next.js 14 (Pages Router) + Tailwind CSS |
-| Auth | JWT (15m access + 7d refresh) |
-| Images | ImageKit |
-| Geo | MongoDB 2dsphere + $nearSphere |
+| **Backend** | Node.js + Express.js + MongoDB (Mongoose) |
+| **Frontend** | Next.js 14 (Pages Router) + Tailwind CSS |
+| **Auth** | JWT — 15min access token + 7-day refresh token |
+| **Images** | ImageKit |
+| **Geo** | MongoDB 2dsphere index + `$nearSphere` queries |
+| **Styling** | Tailwind CSS + Custom Glassmorphism CSS Utilities |
 
 ---
 
-## Quick Start
+## 🚀 Quick Start
 
 ### Prerequisites
 - Node.js 18+
 - MongoDB Atlas account (or local MongoDB)
-- ImageKit account
+- ImageKit account (free tier works)
 
-### Backend
+### 1. Backend
 
 ```bash
 cd backend
-cp .env.example .env        # fill in your values
+cp .env.example .env     # Fill in your values (see below)
 npm install
-npm run dev                 # http://localhost:5000
+npm run dev              # Runs on http://localhost:5000
 ```
 
-### Frontend
+### 2. Frontend
 
 ```bash
 cd frontend
-cp .env.local.example .env.local   # set NEXT_PUBLIC_API_URL
+cp .env.local.example .env.local   # Set NEXT_PUBLIC_API_URL=http://localhost:5000/api
 npm install
-npm run dev                         # http://localhost:3000
+npm run dev                         # Runs on http://localhost:3000
 ```
 
 ---
 
-## Environment Variables
+## ⚙️ Environment Variables
 
 ### Backend (`backend/.env`)
 
 | Variable | Required | Description |
 |---|---|---|
-| `PORT` | ✅ | Server port (5000) |
+| `PORT` | ✅ | Server port (default: 5000) |
 | `MONGO_URI` | ✅ | MongoDB Atlas connection string |
-| `JWT_SECRET` | ✅ | 64-char random hex |
-| `JWT_REFRESH_SECRET` | ✅ | 64-char random hex (different) |
-| `ALLOWED_ORIGINS` | ✅ | Frontend URL (Render URL in production) |
+| `JWT_SECRET` | ✅ | 64-char random hex string |
+| `JWT_REFRESH_SECRET` | ✅ | 64-char random hex string (different from above) |
+| `JWT_EXPIRES_IN` | ✅ | Access token expiry (e.g. `15m`) |
+| `JWT_REFRESH_EXPIRES_IN` | ✅ | Refresh token expiry (e.g. `7d`) |
+| `ALLOWED_ORIGINS` | ✅ | Comma-separated allowed frontend URLs |
 | `IMAGEKIT_PUBLIC_KEY` | ⚠️ | Required for image uploads |
 | `IMAGEKIT_PRIVATE_KEY` | ⚠️ | Required for image uploads |
 | `IMAGEKIT_URL_ENDPOINT` | ⚠️ | Required for image uploads |
 
-Generate JWT secrets:
+**Generate JWT secrets:**
 ```bash
 node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 ```
@@ -83,79 +98,113 @@ node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"
 
 | Variable | Description |
 |---|---|
-| `NEXT_PUBLIC_API_URL` | Backend URL (Render URL in production) |
+| `NEXT_PUBLIC_API_URL` | Backend API URL (e.g. `http://localhost:5000/api`) |
 
 ---
 
-## Deployment (Render)
+## 📡 API Reference
 
-### Backend (Web Service)
-- **Build command:** `npm install`
-- **Start command:** `npm start`
-- **Environment:** Add all variables from `.env.example`
-
-### Frontend (Static Site or Web Service)
-- **Build command:** `npm install && npm run build`
-- **Start command:** `npm start`
-- **Environment:** Set `NEXT_PUBLIC_API_URL` to your backend Render URL
-
----
-
-## API Reference
-
+### Auth
 | Method | Endpoint | Auth | Description |
 |---|---|---|---|
-| POST | `/auth/register` | public | Register (citizen/volunteer) |
-| POST | `/auth/login` | public | Login → JWT |
-| POST | `/auth/refresh` | public | Refresh access token |
-| POST | `/issues` | citizen | Create issue with image |
-| GET | `/issues/nearby` | any | Geo query nearby issues |
+| POST | `/auth/register` | public | Register as citizen or volunteer |
+| POST | `/auth/login` | public | Login → returns access & refresh tokens |
+| POST | `/auth/refresh` | public | Refresh expired access token |
+
+### Issues
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/issues` | citizen | Create issue (with optional image) |
+| GET | `/issues/nearby` | any | Geo-query issues near a coordinate |
 | GET | `/issues/:id` | any | Get issue by ID |
-| PATCH | `/issues/:id` | reporter/admin | Update issue |
-| DELETE | `/issues/:id` | reporter/admin | Soft delete |
-| PATCH | `/issues/:id/status` | volunteer/admin | Lifecycle update |
-| PATCH | `/issues/:id/verify` | admin | Verify resolved issue |
-| POST | `/volunteer/accept/:id` | volunteer | Atomic accept |
-| GET | `/volunteer/assigned` | volunteer | My assigned issues |
-| PATCH | `/volunteer/status/:id` | volunteer/admin | Update status |
-| POST | `/sponsorship` | any | Create sponsorship |
+| PATCH | `/issues/:id` | reporter/admin | Update issue details |
+| DELETE | `/issues/:id` | reporter/admin | Delete issue |
+| PATCH | `/issues/:id/status` | volunteer/admin | Update issue lifecycle status |
+| PATCH | `/issues/:id/verify` | admin | Mark issue as Verified |
+
+### Volunteer
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| POST | `/volunteer/accept/:id` | volunteer | Atomically accept an issue |
+| GET | `/volunteer/assigned` | volunteer | List my assigned issues |
+| PATCH | `/volunteer/status/:id` | volunteer/admin | Update status of assigned issue |
+
+### Leaderboard & Sponsorship
+| Method | Endpoint | Auth | Description |
+|---|---|---|---|
+| GET | `/leaderboard` | public | Get ranked volunteer list with points |
+| POST | `/sponsorship` | any | Create a sponsorship link for an issue |
 | PATCH | `/sponsorship/:id` | admin | Update sponsorship status |
-| GET | `/leaderboard` | public | Ranked volunteer list |
 
 ---
 
-## Issue Lifecycle
+## 🔄 Issue Lifecycle
 
 ```
 Reported → Assigned → In Progress → Resolved → Verified
 ```
 
-- Volunteer accepts → `Assigned` (atomic, race-condition safe)
-- Volunteer updates → `In Progress` → `Resolved` (+10 pts)
-- Admin verifies → `Verified` (+5 pts to volunteer)
+| Transition | Who | Points |
+|---|---|---|
+| Reported → Assigned | Volunteer accepts | — |
+| Assigned → In Progress | Volunteer updates | — |
+| In Progress → Resolved | Volunteer marks resolved | +10 pts |
+| Resolved → Verified | Admin verifies | +5 pts to volunteer |
 
 ---
 
-## Project Structure
+## 🗂️ Project Structure
 
 ```
 urbanpulse/
 ├── backend/
-│   ├── config/          # env validation, DB connection
-│   ├── middleware/       # auth, RBAC, validation, error handler
+│   ├── config/            # env validation, DB connection
+│   ├── middleware/         # JWT auth, RBAC, validation, error handler
 │   ├── modules/
-│   │   ├── auth/        # register, login, refresh
-│   │   ├── issues/      # CRUD + geo + lifecycle
-│   │   ├── volunteer/   # accept + status updates
-│   │   ├── sponsorship/ # sponsorship lifecycle
-│   │   └── leaderboard/ # points + ranking
-│   ├── utils/           # AppError, imageUpload
+│   │   ├── auth/          # register, login, refresh
+│   │   ├── issues/        # CRUD, geo queries, status lifecycle
+│   │   ├── volunteer/     # atomic issue acceptance, status updates
+│   │   ├── sponsorship/   # sponsorship creation and lifecycle
+│   │   └── leaderboard/   # points calculation and ranking
+│   ├── utils/             # AppError, imageUpload (ImageKit)
 │   ├── app.js
 │   └── server.js
 └── frontend/
-    ├── components/      # Navbar, SidebarLayout, IssueCard, Toast, ProgressBar
-    ├── hooks/           # useAuth, useProgress
-    ├── lib/             # axios instance
-    ├── pages/           # Next.js pages
-    └── styles/          # Tailwind CSS
+    ├── components/
+    │   ├── Navbar.js       # Dark glassmorphic public navbar
+    │   ├── SidebarLayout.js # Authenticated dark sidebar + mobile strip
+    │   ├── IssueCard.js    # Issue card with priority/location inference
+    │   ├── Toast.js        # Toast notifications
+    │   └── ProgressBar.js  # Loading progress indicator
+    ├── hooks/
+    │   ├── useAuth.js      # Auth state + JWT decode
+    │   └── useProgress.js  # Progress bar state hook
+    ├── lib/
+    │   └── api.js          # Axios instance with refresh token interceptors
+    ├── pages/
+    │   ├── index.js        # Public home (Cyber-Pulse theme)
+    │   ├── login.js        # Auth form (glass panel)
+    │   ├── register.js     # Auth form (glass panel)
+    │   ├── dashboard.js    # Issues overview with filters, sort, view modes
+    │   ├── create-issue.js # Report issue form with camera/upload
+    │   ├── volunteer.js    # Volunteer portal
+    │   └── leaderboard.js  # Ranked leaderboard
+    └── styles/
+        └── globals.css     # Tailwind + Cyber-Pulse glassmorphism utilities
 ```
+
+---
+
+## 🌏 Location
+
+This platform is configured for **Pondicherry, India**.
+
+- Default coordinates: `11.9139°N, 79.8145°E`
+- Issue discovery radius: **10 km**
+- Location zones auto-detected from issue content: **Coastal/Auroville**, **Market Area**, **Heritage Zone**
+
+---
+
+## 📄 License
+
+MIT — feel free to fork and adapt for your own city.
