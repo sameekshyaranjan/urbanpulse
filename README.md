@@ -6,7 +6,16 @@
 
 ## 🌟 Overview
 
-UrbanPulse is a full-stack civic-tech web application designed specifically for **Pondicherry**. Citizens and tourists can report public safety issues — from broken streetlights on Promenade Beach to potholes on Heritage Street. Local volunteers then accept, resolve, and verify these issues to build a cleaner, safer community.
+UrbanPulse is a full-stack civic-tech web application designed specifically for **Pondicherry** that bridges the gap between problem visibility and action.
+
+Today, tourists unknowingly enter unsafe areas, civic issues go unreported, and even when they are reported, nothing happens because there is no system to track or act on them.
+
+UrbanPulse fixes this by connecting three groups:
+- **Citizens & Tourists** — report unsafe or inconvenient conditions on the spot
+- **Visitors** — browse live, nearby issues *before* reaching a location so they can make informed decisions
+- **Volunteers & Local Communities** — transparently track and resolve reported issues
+
+The result: fewer surprises for tourists, faster resolution for communities, and a safer Pondicherry for everyone.
 
 ---
 
@@ -14,6 +23,7 @@ UrbanPulse is a full-stack civic-tech web application designed specifically for 
 
 ### Public Pages (Unauthenticated)
 - 🌃 **Cyber-Pulse Landing Page** — Dark glassmorphism hero with neon gradients, animated background blobs, and a structured grid pattern
+- 👁️ **Tourist Awareness** — Visitors can browse and discover live issues near a location *before* they arrive, helping them avoid unsafe or inconvenient areas proactively
 - 🔐 **Secure Auth Forms** — Glass-panel login and registration forms with neon accent inputs
 - 🎭 **Role Selection** — Register as a **Citizen** (report issues) or **Volunteer** (resolve issues)
 
